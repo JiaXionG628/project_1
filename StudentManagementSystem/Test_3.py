@@ -9,12 +9,12 @@ class Student(object):
         self.sex = student_sex
 
     def __repr__(self):
-        return f'学号：{self.id}, 姓名：{self.name},性别：{self.sex}'
+        return f'学号：{self.id}, 姓名：{self.name}, 性别：{self.sex}'
 
 
 class MyException(Exception):
     def __init__(self, msg):
-        print(f"添加学员参数 {msg} 有误")
+        print(f"参数 {msg} 有误")
 
 
 class StudentManagement(object):
@@ -35,11 +35,22 @@ class StudentManagement(object):
     # @print_students_info
     def addStudent(self, student):
         # 添加学员
+        if not isinstance(student.id, int):
+            print('学号非数字')
+            raise MyException('学员编号')
+        elif self.get_student_info_by_id(student.id) == 0:
+            print('学号已存在')
+            raise MyException('学员编号')
+        elif student.sex != '男' and student.sex != '女':
+            raise MyException('学员性别')
         self.student_list.append(student)
         print('添加成功，添加后的学员信息：', student)
 
     @print_students_info
     def deleteStudent(self, student_id: int):
+        if not isinstance(student_id, int):
+            print("删除的学号不是数字")
+            raise MyException("学员编号")
         # 根据学号删除学员，查看所有学员信息
         for student in self.student_list:
             if student.id == student_id:
@@ -48,7 +59,9 @@ class StudentManagement(object):
                 break
         else:
             print("未找到该学员")
+            return -1
         print("删除后的学员信息为：")
+        return 0
 
     def get_student_info_by_id(self, student_id: int):
         for student in self.student_list:
@@ -57,7 +70,8 @@ class StudentManagement(object):
                 print(student)
                 break
         else:
-            print("学员不存在")
+            return -1
+        return 0
 
     @print_students_info
     def get_all_students_info(self):
@@ -66,16 +80,25 @@ class StudentManagement(object):
 
     def process_input(self, input_message):
         if input_message == 1:
-            student_id = int(input("请输入想要查找的学员编号："))
-            self.get_student_info_by_id(student_id)
+            student_id = input("请输入想要查找的学员编号：")
+            if not student_id.isdigit():
+                print('学员编号为非数字')
+                raise MyException('学员编号')
+            res = self.get_student_info_by_id(int(student_id))
+            if res == -1:
+                print('该学员不存在')
             return 0
         elif input_message == 2:
             student_id = input("请输入学员编号：")
             if not student_id.isdigit():
+                print('学员编号为非数字')
+                raise MyException('学员编号')
+            elif self.get_student_info_by_id(int(student_id)) == 0:
+                print('学员编号已存在')
                 raise MyException('学员编号')
             student_name = input("请输入学员姓名：")
             student_sex = input("请输入学员性别：")
-            if student_sex != '男' or student_sex != '女':
+            if student_sex != '男' and student_sex != '女':
                 raise MyException('学员性别')
             self.addStudent(Student(int(student_id), student_name, student_sex))
             return 0
